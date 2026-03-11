@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0f">
+<title>FORGE — Фитнес Хаб</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #18181f;
+    --bg4: #20202a;
+    --border: rgba(255,255,255,0.07);
+    --accent: #00f5a0;
+    --accent2: #00c8ff;
+    --accent3: #ff6b35;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --card: #14141c;
+    --glow: 0 0 24px rgba(0,245,160,0.18);
+    --glow2: 0 0 24px rgba(0,200,255,0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: .4;
+  }
+
+  /* NAVIGATION */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 60px;
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all .2s;
+  }
+
+  .nav-links a:hover {
+    color: var(--accent);
+    background: rgba(0,245,160,0.07);
+  }
+
+  /* MAIN LAYOUT */
+  main {
+    padding-top: 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  section {
+    padding: 60px 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 80px 24px 40px;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 40px; left: 50%; transform: translateX(-50%);
+    width: 500px; height: 300px;
+    background: radial-gradient(ellipse at center, rgba(0,245,160,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 10vw, 96px);
+    letter-spacing: 6px;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero p {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 16px;
+    letter-spacing: 0.3px;
+  }
+
+  /* SECTION HEADER */
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 20px; height: 2px;
+    background: var(--accent);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(32px, 5vw, 48px);
+    letter-spacing: 3px;
+    color: var(--text);
+    margin-bottom: 32px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: border-color .3s;
+  }
+
+  .card:hover { border-color: rgba(0,245,160,0.2); }
+
+  /* =====================
+     SECTION 1: PROFILE
+  ===================== */
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 640px) { .profile-grid { grid-template-columns: 1fr; } }
+
+  .input-group { display: flex; flex-direction: column; gap: 8px; }
+
+  .input-group label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .input-row { display: flex; align-items: center; gap: 8px; }
+
+  .input-group input {
+    flex: 1;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-size: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    width: 100%;
+  }
+
+  .input-group input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,245,160,0.1);
+  }
+
+  .input-unit {
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .calc-btn {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    color: #0a0a0f;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .calc-btn:hover { opacity: .88; }
+  .calc-btn:active { transform: scale(0.98); }
+
+  /* RESULTS */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .result-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .result-card.green::before { background: var(--accent); }
+  .result-card.blue::before { background: var(--accent2); }
+  .result-card.orange::before { background: var(--accent3); }
+  .result-card.purple::before { background: #c77dff; }
+
+  .result-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+  }
+
+  .result-card.green .result-value { color: var(--accent); }
+  .result-card.blue .result-value { color: var(--accent2); }
+  .result-card.orange .result-value { color: var(--accent3); }
+  .result-card.purple .result-value { color: #c77dff; }
+
+  .result-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* MACROS BAR */
+  .macros-bar {
+    margin-top: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .macros-bar h3 {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .progress-track {
+    height: 10px;
+    background: var(--bg4);
+    border-radius: 99px;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 12px;
+  }
+
+  .progress-seg {
+    height: 100%;
+    border-radius: 99px;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+
+  .macro-labels {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .macro-dot {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .macro-dot span {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 3px;
+  }
+
+  .macro-dot strong { color: var(--text); }
+
+  /* FOOD LIST */
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 640px) { .food-grid { grid-template-columns: 1fr; } }
+
+  .food-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+  }
+
+  .food-card h4 {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .food-card.protein h4 { color: var(--accent); }
+  .food-card.fat h4 { color: var(--accent3); }
+  .food-card.carbs h4 { color: var(--accent2); }
+
+  .food-card ul { list-style: none; }
+  .food-card ul li {
+    font-size: 13px;
+    color: var(--muted);
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .food-card ul li:last-child { border-bottom: none; }
+  .food-card ul li::before { content: '→'; color: inherit; opacity: .5; font-size: 11px; }
+  .food-card.protein ul li::before { color: var(--accent); }
+  .food-card.fat ul li::before { color: var(--accent3); }
+  .food-card.carbs ul li::before { color: var(--accent2); }
+
+  /* =====================
+     SECTION 2: WORKOUTS
+  ===================== */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    background: var(--bg3);
+    padding: 6px;
+    border-radius: 12px;
+    width: fit-content;
+  }
+
+  .tab-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: .5px;
+  }
+
+  .tab-btn.active {
+    background: var(--accent);
+    color: #0a0a0f;
+  }
+
+  .workout-panel { display: none; }
+  .workout-panel.active { display: block; }
+
+  .workout-meta {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .meta-badge {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .exercise-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .exercise-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+
+  .exercise-card:has(.ex-check:checked) {
+    border-color: rgba(0,245,160,0.4);
+    background: rgba(0,245,160,0.03);
+  }
+
+  .ex-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+  }
+
+  .ex-check {
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid var(--border);
+    background: var(--bg3);
+    transition: all .2s;
+    position: relative;
+  }
+
+  .ex-check:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .ex-check:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    color: #0a0a0f;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .ex-name {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .ex-check:checked ~ .ex-name { color: var(--accent); }
+
+  .ex-stats {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .stat-pill {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .stat-pill span { color: var(--text); }
+
+  .expand-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0 4px;
+    transition: color .2s, transform .3s;
+    line-height: 1;
+  }
+
+  .expand-btn.open { transform: rotate(180deg); color: var(--accent); }
+
+  .ex-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .ex-body.open { display: block; }
+
+  .ex-muscles {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    margin-bottom: 12px;
+  }
+
+  .muscle-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 99px;
+    background: rgba(0,245,160,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,245,160,0.2);
+  }
+
+  .technique-box {
+    background: var(--bg3);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .technique-box strong { color: var(--accent2); display: block; margin-bottom: 4px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* REST TIMER */
+  .rest-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .rest-info span { color: var(--accent3); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+  /* WORKOUT PROGRESS */
+  .workout-progress {
+    margin-top: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .wp-label { font-size: 13px; color: var(--muted); flex-shrink: 0; }
+  .wp-bar { flex: 1; height: 6px; background: var(--bg4); border-radius: 99px; overflow: hidden; }
+  .wp-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width .4s; }
+  .wp-count { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: var(--accent); flex-shrink: 0; }
+
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .reset-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* =====================
+     SECTION 3: KNOWLEDGE
+  ===================== */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .rule-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .3s, border-color .3s;
+  }
+
+  .rule-card:hover { transform: translateY(-4px); }
+
+  .rule-card.r1 { border-top: 3px solid var(--accent); }
+  .rule-card.r1:hover { border-color: var(--accent); border-top-color: var(--accent); box-shadow: var(--glow); }
+  .rule-card.r2 { border-top: 3px solid var(--accent2); }
+  .rule-card.r2:hover { border-color: var(--accent2); border-top-color: var(--accent2); box-shadow: var(--glow2); }
+  .rule-card.r3 { border-top: 3px solid var(--accent3); }
+  .rule-card.r3:hover { border-color: var(--accent3); border-top-color: var(--accent3); }
+
+  .rule-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    line-height: 1;
+    opacity: .07;
+    position: absolute;
+    top: 12px; right: 20px;
+    letter-spacing: 0;
+  }
+
+  .rule-icon { font-size: 28px; margin-bottom: 14px; }
+
+  .rule-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .rule-card.r1 h3 { color: var(--accent); }
+  .rule-card.r2 h3 { color: var(--accent2); }
+  .rule-card.r3 h3 { color: var(--accent3); }
+
+  .rule-card p {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 40px 24px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  footer strong { color: var(--accent); font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+
+  /* SAVED INDICATOR */
+  .saved-toast {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: var(--accent);
+    color: #0a0a0f;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 10px;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all .3s;
+    pointer-events: none;
+  }
+
+  .saved-toast.show { opacity: 1; transform: translateY(0); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+  @media (max-width: 480px) {
+    .ex-stats { display: none; }
+    .tabs { width: 100%; }
+    .tab-btn { flex: 1; text-align: center; padding: 10px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">FORGE</div>
+  <div class="nav-links">
+    <a href="#profile">Профиль</a>
+    <a href="#workouts">Тренировки</a>
+    <a href="#knowledge">База знаний</a>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <h1>ТВОЙ ПУТЬ<br>К ФОРМЕ</h1>
+    <p>Персональный фитнес-хаб · Full Body · Рекомпозиция тела</p>
+  </div>
+
+  <!-- ======================== SECTION 1: PROFILE ======================== -->
+  <section id="profile">
+    <div class="section-label">01 — Профиль</div>
+    <div class="section-title">КБЖУ И ПАРАМЕТРЫ</div>
+
+    <div class="card">
+      <div class="profile-grid">
+        <div class="input-group">
+          <label>Рост</label>
+          <div class="input-row">
+            <input type="number" id="height" value="184" min="140" max="220">
+            <span class="input-unit">см</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Вес</label>
+          <div class="input-row">
+            <input type="number" id="weight" value="90" min="40" max="200">
+            <span class="input-unit">кг</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Возраст</label>
+          <div class="input-row">
+            <input type="number" id="age" value="18" min="14" max="80">
+            <span class="input-unit">лет</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Пол</label>
+          <div class="input-row">
+            <select id="gender" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:16px;font-family:'DM Sans',sans-serif;outline:none;appearance:none;">
+              <option value="male">Мужской</option>
+              <option value="female">Женский</option>
+            </select>
+          </div>
+        </div>
+        <button class="calc-btn" onclick="calculate()">⚡ РАССЧИТАТЬ КБЖУ</button>
+      </div>
+    </div>
+
+    <div class="results-grid" id="results">
+      <div class="result-card green">
+        <div class="result-value" id="res-bmr">—</div>
+        <div class="result-label">BMR ккал</div>
+      </div>
+      <div class="result-card blue">
+        <div class="result-value" id="res-tdee">—</div>
+        <div class="result-label">TDEE ккал</div>
+      </div>
+      <div class="result-card orange">
+        <div class="result-value" id="res-target">—</div>
+        <div class="result-label">Цель ккал</div>
+      </div>
+      <div class="result-card purple">
+        <div class="result-value" id="res-bmi">—</div>
+        <div class="result-label">BMI индекс</div>
+      </div>
+    </div>
+
+    <div class="macros-bar" id="macros-bar">
+      <h3>Распределение БЖУ</h3>
+      <div class="progress-track">
+        <div class="progress-seg" id="bar-p" style="width:0%;background:var(--accent);"></div>
+        <div class="progress-seg" id="bar-f" style="width:0%;background:var(--accent3);margin-left:2px;"></div>
+        <div class="progress-seg" id="bar-c" style="width:0%;background:var(--accent2);margin-left:2px;"></div>
+      </div>
+      <div class="macro-labels">
+        <div class="macro-dot"><span style="background:var(--accent)"></span>Белки <strong id="ml-p">0г</strong></div>
+        <div class="macro-dot"><span style="background:var(--accent3)"></span>Жиры <strong id="ml-f">0г</strong></div>
+        <div class="macro-dot"><span style="background:var(--accent2)"></span>Углеводы <strong id="ml-c">0г</strong></div>
+      </div>
+    </div>
+
+    <div class="food-grid" style="margin-top:28px;">
+      <div class="section-label" style="grid-column:1/-1">Рекомендованные продукты</div>
+
+      <div class="food-card protein">
+        <h4>🥩 Белки</h4>
+        <ul>
+          <li>Куриная грудка</li>
+          <li>Говядина (нежирная)</li>
+          <li>Яичные белки</li>
+          <li>Творог 1–5%</li>
+          <li>Греческий йогурт</li>
+          <li>Тунец / лосось</li>
+          <li>Протеин (сывороточный)</li>
+        </ul>
+      </div>
+
+      <div class="food-card fat">
+        <h4>🥑 Жиры</h4>
+        <ul>
+          <li>Авокадо</li>
+          <li>Орехи (миндаль, грецкий)</li>
+          <li>Оливковое масло</li>
+          <li>Жирная рыба (скумбрия)</li>
+          <li>Яичный желток</li>
+          <li>Арахисовая паста</li>
+          <li>Семена чиа / льна</li>
+        </ul>
+      </div>
+
+      <div class="food-card carbs">
+        <h4>🌾 Углеводы</h4>
+        <ul>
+          <li>Гречка / рис (бурый)</li>
+          <li>Овсянка</li>
+          <li>Батат</li>
+          <li>Цельнозерновой хлеб</li>
+          <li>Бобовые (чечевица)</li>
+          <li>Банан / ягоды</li>
+          <li>Картофель (варёный)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== SECTION 2: WORKOUTS ======================== -->
+  <section id="workouts">
+    <div class="section-label">02 — Тренировки</div>
+    <div class="section-title">FULL BODY ПРОГРАММА</div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('A',this)">Тренировка A</button>
+      <button class="tab-btn" onclick="switchTab('B',this)">Тренировка B</button>
+      <button class="tab-btn" onclick="switchTab('C',this)">Тренировка C</button>
+    </div>
+
+    <!-- WORKOUT A -->
+    <div class="workout-panel active" id="panel-A">
+      <div class="workout-meta">
+        <span class="meta-badge">📅 Понедельник</span>
+        <span class="meta-badge">⏱ 60–75 мин</span>
+        <span class="meta-badge">🎯 Сила + Объём</span>
+      </div>
+      <div class="exercise-list" id="list-A">
+        <!-- Exercises injected by JS -->
+      </div>
+      <div class="workout-progress">
+        <span class="wp-label">Прогресс:</span>
+        <div class="wp-bar"><div class="wp-fill" id="prog-A" style="width:0%"></div></div>
+        <span class="wp-count" id="cnt-A">0/0</span>
+        <button class="reset-btn" onclick="resetWorkout('A')">Сброс</button>
+      </div>
+    </div>
+
+    <!-- WORKOUT B -->
+    <div class="workout-panel" id="panel-B">
+      <div class="workout-meta">
+        <span class="meta-badge">📅 Среда</span>
+        <span class="meta-badge">⏱ 55–70 мин</span>
+        <span class="meta-badge">🎯 Гипертрофия</span>
+      </div>
+      <div class="exercise-list" id="list-B"></div>
+      <div class="workout-progress">
+        <span class="wp-label">Прогресс:</span>
+        <div class="wp-bar"><div class="wp-fill" id="prog-B" style="width:0%"></div></div>
+        <span class="wp-count" id="cnt-B">0/0</span>
+        <button class="reset-btn" onclick="resetWorkout('B')">Сброс</button>
+      </div>
+    </div>
+
+    <!-- WORKOUT C -->
+    <div class="workout-panel" id="panel-C">
+      <div class="workout-meta">
+        <span class="meta-badge">📅 Пятница</span>
+        <span class="meta-badge">⏱ 50–65 мин</span>
+        <span class="meta-badge">🎯 Выносливость + Детали</span>
+      </div>
+      <div class="exercise-list" id="list-C"></div>
+      <div class="workout-progress">
+        <span class="wp-label">Прогресс:</span>
+        <div class="wp-bar"><div class="wp-fill" id="prog-C" style="width:0%"></div></div>
+        <span class="wp-count" id="cnt-C">0/0</span>
+        <button class="reset-btn" onclick="resetWorkout('C')">Сброс</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== SECTION 3: KNOWLEDGE ======================== -->
+  <section id="knowledge">
+    <div class="section-label">03 — База знаний</div>
+    <div class="section-title">3 ЗОЛОТЫХ ПРАВИЛА</div>
+
+    <div class="rules-grid">
+      <div class="rule-card r1">
+        <div class="rule-num">1</div>
+        <div class="rule-icon">📈</div>
+        <h3>Прогрессия нагрузок</h3>
+        <p>Тело адаптируется к стрессу. Каждую неделю добавляй 1–2 кг к рабочему весу или 1 повторение к подходу. Без прогрессии — нет роста. Записывай каждую тренировку и бей личные рекорды.</p>
+      </div>
+
+      <div class="rule-card r2">
+        <div class="rule-num">2</div>
+        <div class="rule-icon">🎯</div>
+        <h3>Техника прежде всего</h3>
+        <p>Правильная техника = максимальная нагрузка на целевую мышцу и минимальный риск травмы. Начинай с малых весов. Снижай вес, если форма ломается. Видеозапись себя — лучший инструмент контроля.</p>
+      </div>
+
+      <div class="rule-card r3">
+        <div class="rule-num">3</div>
+        <div class="rule-icon">😴</div>
+        <h3>Сон — анаболик #1</h3>
+        <p>Мышцы растут не в зале, а во сне. 8–9 часов — твоя цель. В фазе глубокого сна пик выброса гормона роста. Хронический недосып снижает тестостерон и повышает кортизол, уничтожая весь прогресс.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <strong>FORGE</strong><br>
+  <span style="margin-top:8px;display:block;">Данные сохраняются в браузере · Тренируйся умно · Расти каждый день</span>
+</footer>
+
+<div class="saved-toast" id="toast">💾 Сохранено</div>
+
+<script>
+// ============================================================
+//  DATA
+// ============================================================
+const workouts = {
+  A: [
+    {
+      name: 'Приседания со штангой',
+      sets: 4, reps: '6–8', rest: '3 мин',
+      muscles: ['Квадрицепс', 'Ягодицы', 'Бицепс бедра', 'Кор'],
+      technique: 'Ступни чуть шире плеч, носки развёрнуты 15–30°. Спина прямая, нейтральный прогиб в пояснице. Колени идут по линии носков. Опускайся до параллели или глубже, пятки не отрываются. Гриф лежит на трапециях (хайбар) или ниже (лоубар).'
+    },
+    {
+      name: 'Жим штанги лёжа',
+      sets: 4, reps: '6–8', rest: '3 мин',
+      muscles: ['Грудь', 'Передние дельты', 'Трицепс'],
+      technique: 'Лопатки сведены и прижаты к скамье — создай «арку». Хват чуть шире плеч. Гриф опускается к нижней части груди под углом ~45°. Локти не разводить в стороны на 90°. Выдох на подъёме.'
+    },
+    {
+      name: 'Тяга штанги в наклоне',
+      sets: 4, reps: '8–10', rest: '2 мин',
+      muscles: ['Широчайшие', 'Трапеции', 'Бицепс', 'Задние дельты'],
+      technique: 'Наклон 45°, спина прямая, нейтральный позвоночник. Тяни гриф к поясу, не к груди. Локти идут вдоль тела назад. Сводим лопатки в верхней точке. Не округляй поясницу — это критично.'
+    },
+    {
+      name: 'Армейский жим стоя',
+      sets: 3, reps: '8–10', rest: '2 мин',
+      muscles: ['Средние дельты', 'Передние дельты', 'Трицепс', 'Кор'],
+      technique: 'Ноги на ширине плеч. Гриф у ключиц, хват чуть шире плеч. Жмёшь вертикально вверх, немного «уходишь» корпусом под гриф. Не переразгибай поясницу. Напряги ягодицы и пресс для стабильности.'
+    },
+    {
+      name: 'Подтягивания широким хватом',
+      sets: 3, reps: 'макс (цель 8+)', rest: '2 мин',
+      muscles: ['Широчайшие', 'Бицепс', 'Ромбовидные'],
+      technique: 'Хват сверху, чуть шире плеч. Лопатки опускаешь вниз перед началом движения. Тяни грудью к перекладине, локти идут вниз-назад. Не раскачивайся. Если не можешь 8 раз — используй резинку или тягу верхнего блока.'
+    },
+    {
+      name: 'Планка',
+      sets: 3, reps: '45–60 сек', rest: '1 мин',
+      muscles: ['Кор', 'Поперечная мышца живота', 'Стабилизаторы'],
+      technique: 'Упор на предплечья и носки. Тело — одна прямая линия. Не поднимай таз и не провисай в пояснице. Напряги пресс, как будто сейчас ударят в живот. Взгляд в пол, шея нейтральная.'
+    },
+  ],
+  B: [
+    {
+      name: 'Румынская тяга',
+      sets: 4, reps: '8–10', rest: '2.5 мин',
+      muscles: ['Бицепс бедра', 'Ягодицы', 'Поясница'],
+      technique: 'Ноги на ширине плеч, штанга у бёдер. Отводи таз назад, опускай штангу вдоль ног (почти касается). Спина прямая — нейтральный поясничный прогиб. Опускайся до чёткого растяжения бицепса бедра, не ниже. Подъём — тяни бёдрами вперёд.'
+    },
+    {
+      name: 'Жим гантелей на наклонной',
+      sets: 4, reps: '10–12', rest: '2 мин',
+      muscles: ['Верх груди', 'Передние дельты', 'Трицепс'],
+      technique: 'Угол скамьи 30–45°. Гантели на уровне верхней части груди, локти под углом ~60° к телу. Жмёшь вверх и чуть сводишь гантели. В нижней точке — глубокое растяжение груди. Контролируй опускание (2–3 сек).'
+    },
+    {
+      name: 'Тяга гантели одной рукой',
+      sets: 3, reps: '10–12', rest: '1.5 мин',
+      muscles: ['Широчайшие', 'Бицепс', 'Задние дельты'],
+      technique: 'Одна рука и колено опираются на скамью. Спина горизонтально. Тяни гантель к поясу, локоть максимально вверх. Не ротируй корпус сильно — это тяга, а не скручивание. В нижней точке — дай плечу полностью опуститься.'
+    },
+    {
+      name: 'Болгарские сплит-приседания',
+      sets: 3, reps: '10–12/нога', rest: '2 мин',
+      muscles: ['Квадрицепс', 'Ягодицы', 'Бицепс бедра'],
+      technique: 'Задняя нога на скамье, передняя — на шаг вперёд. Опускайся вертикально вниз, не толкай колено далеко вперёд за носок. Спина прямая. Вес на пятке передней ноги. Отличная альтернатива приседу при болях в спине.'
+    },
+    {
+      name: 'Жим узким хватом',
+      sets: 3, reps: '10–12', rest: '1.5 мин',
+      muscles: ['Трицепс', 'Грудь', 'Передние дельты'],
+      technique: 'Хват на ширине плеч (не уже — перегрузишь запястья). Локти прижаты к телу, идут назад. Гриф опускается к нижней части груди. Полностью распрямляй руки в верхней точке. Концентрируйся на трицепсе.'
+    },
+    {
+      name: 'Сгибания на бицепс со штангой',
+      sets: 3, reps: '10–12', rest: '1.5 мин',
+      muscles: ['Бицепс', 'Брахиалис'],
+      technique: 'Стоишь прямо, локти прижаты к бокам — они не должны двигаться. Подъём на 2 счёта, опускание на 3 счёта (негатив важен). Не раскачивай корпус — так ты снимаешь нагрузку с бицепса. Хват чуть шире плеч.'
+    },
+  ],
+  C: [
+    {
+      name: 'Становая тяга',
+      sets: 3, reps: '5', rest: '3–4 мин',
+      muscles: ['Всё тело', 'Поясница', 'Бицепс бедра', 'Трапеции'],
+      technique: 'Ноги на ширине таза, гриф над серединой стопы. Берёшь гриф, лопатки вниз-назад. Поднимаешь грудь, создавая прогиб в пояснице. Штанга буквально скользит по ногам. Нет рывка — плавный подъём. Бёдра и плечи поднимаются одновременно. Это базовое движение — работай с умом.'
+    },
+    {
+      name: 'Жим в Смите под углом',
+      sets: 3, reps: '12–15', rest: '1.5 мин',
+      muscles: ['Грудь', 'Дельты', 'Трицепс'],
+      technique: 'Угол 30°. Смит позволяет сосредоточиться на мышце, а не балансе. Опускай медленно (3 сек), жмёшь быстро. Хорошо для «прокачки» крови в конце тренировки. Полный диапазон движения.'
+    },
+    {
+      name: 'Тяга верхнего блока широким хватом',
+      sets: 3, reps: '12–15', rest: '1.5 мин',
+      muscles: ['Широчайшие', 'Бицепс'],
+      technique: 'Зафиксируй бёдра под валиками. Небольшой наклон назад (15–20°). Тяни рукоять к верхней части груди, не к подбородку. Лопатки сводятся и опускаются в нижней точке. Задержи на секунду — почувствуй широчайшие.'
+    },
+    {
+      name: 'Жим ногами в тренажёре',
+      sets: 3, reps: '15–20', rest: '1.5 мин',
+      muscles: ['Квадрицепс', 'Ягодицы'],
+      technique: 'Стопы на ширине плеч в середине платформы. Опускай до угла ~90° в колене (не меньше, если есть дискомфорт). Не блокируй колени полностью в верхней точке. Поясница прижата к спинке тренажёра всё время. Высокое положение стоп = больше ягодиц; низкое = квадрицепс.'
+    },
+    {
+      name: 'Разводки гантелей лёжа',
+      sets: 3, reps: '12–15', rest: '1.5 мин',
+      muscles: ['Грудь (растяжение)', 'Передние дельты'],
+      technique: 'Гантели над грудью, небольшой сгиб в локтях. Разводишь дугообразно вниз до уровня груди — чувствуй растяжение. Возвращаешь, как будто обнимаешь большое дерево. Вес небольшой — тут важно растяжение, а не нагрузка.'
+    },
+    {
+      name: 'Подъём на носки стоя',
+      sets: 4, reps: '15–20', rest: '1 мин',
+      muscles: ['Икры (Gastrocnemius)'],
+      technique: 'Носки на краю ступеньки или платформы для полного диапазона. Медленно опускайся (2 сек пауза внизу), быстро поднимайся. Держись за опору для равновесия, но не для помощи. Икры — медленно сокращающиеся мышцы, любят высокое число повторений.'
+    },
+  ],
+};
+
+// ============================================================
+//  RENDER EXERCISES
+// ============================================================
+function renderExercises() {
+  ['A','B','C'].forEach(t => {
+    const list = document.getElementById('list-' + t);
+    list.innerHTML = '';
+    const saved = getSavedChecks(t);
+    workouts[t].forEach((ex, i) => {
+      const id = `ex-${t}-${i}`;
+      const checked = saved[i] ? 'checked' : '';
+      list.insertAdjacentHTML('beforeend', `
+        <div class="exercise-card" id="card-${id}">
+          <div class="ex-header" onclick="toggleExpand('${id}', event)">
+            <input type="checkbox" class="ex-check" id="${id}" ${checked}
+              onchange="onCheck('${t}',${i},this.checked)" onclick="event.stopPropagation()">
+            <span class="ex-name">${ex.name}</span>
+            <div class="ex-stats">
+              <span class="stat-pill">${ex.sets}×<span>${ex.reps}</span></span>
+              <span class="stat-pill">⏱ <span>${ex.rest}</span></span>
+            </div>
+            <button class="expand-btn" id="btn-${id}">▾</button>
+          </div>
+          <div class="ex-body" id="body-${id}">
+            <div class="ex-muscles">
+              ${ex.muscles.map(m => `<span class="muscle-tag">${m}</span>`).join('')}
+            </div>
+            <div class="technique-box">
+              <strong>Техника выполнения</strong>
+              ${ex.technique}
+            </div>
+            <div class="rest-info">⏳ Отдых между подходами: <span>${ex.rest}</span></div>
+          </div>
+        </div>
+      `);
+    });
+    updateProgress(t);
+  });
+}
+
+function toggleExpand(id, e) {
+  if (e && e.target.type === 'checkbox') return;
+  const body = document.getElementById('body-' + id);
+  const btn = document.getElementById('btn-' + id);
+  body.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+// ============================================================
+//  TABS
+// ============================================================
+function switchTab(t, btn) {
+  document.querySelectorAll('.workout-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + t).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ============================================================
+//  CHECKBOX + PROGRESS
+// ============================================================
+function getSavedChecks(t) {
+  try { return JSON.parse(localStorage.getItem('forge-checks-' + t)) || {}; } catch { return {}; }
+}
+
+function saveChecks(t, data) {
+  try { localStorage.setItem('forge-checks-' + t, JSON.stringify(data)); } catch {}
+}
+
+function onCheck(t, i, val) {
+  const data = getSavedChecks(t);
+  data[i] = val;
+  saveChecks(t, data);
+  updateProgress(t);
+  showToast();
+}
+
+function updateProgress(t) {
+  const total = workouts[t].length;
+  const data = getSavedChecks(t);
+  const done = Object.values(data).filter(Boolean).length;
+  document.getElementById('cnt-' + t).textContent = `${done}/${total}`;
+  document.getElementById('prog-' + t).style.width = `${(done/total)*100}%`;
+}
+
+function resetWorkout(t) {
+  saveChecks(t, {});
+  document.querySelectorAll(`#list-${t} .ex-check`).forEach(cb => cb.checked = false);
+  document.querySelectorAll(`#list-${t} .exercise-card`).forEach(c => {
+    c.style.borderColor = '';
+    c.style.background = '';
+  });
+  updateProgress(t);
+}
+
+// ============================================================
+//  CALCULATOR
+// ============================================================
+function calculate() {
+  const h = parseFloat(document.getElementById('height').value) || 184;
+  const w = parseFloat(document.getElementById('weight').value) || 90;
+  const a = parseFloat(document.getElementById('age').value) || 18;
+  const g = document.getElementById('gender').value;
+
+  // Mifflin-St Jeor
+  let bmr;
+  if (g === 'male') bmr = 10*w + 6.25*h - 5*a + 5;
+  else bmr = 10*w + 6.25*h - 5*a - 161;
+
+  const tdee = Math.round(bmr * 1.55); // moderate activity
+  const target = Math.round(tdee * 0.93); // ~7% deficit for recomp
+  const bmi = (w / ((h/100)**2)).toFixed(1);
+
+  // Macros: protein 1.9g/kg, fat 0.95g/kg, rest carbs
+  const protein = Math.round(w * 1.9);
+  const fat = Math.round(w * 0.95);
+  const cals_from_pf = protein*4 + fat*9;
+  const carbs = Math.round((target - cals_from_pf) / 4);
+
+  document.getElementById('res-bmr').textContent = Math.round(bmr);
+  document.getElementById('res-tdee').textContent = tdee;
+  document.getElementById('res-target').textContent = target;
+  document.getElementById('res-bmi').textContent = bmi;
+
+  const total_cals = protein*4 + fat*9 + carbs*4;
+  document.getElementById('bar-p').style.width = `${(protein*4/total_cals*100).toFixed(1)}%`;
+  document.getElementById('bar-f').style.width = `${(fat*9/total_cals*100).toFixed(1)}%`;
+  document.getElementById('bar-c').style.width = `${(carbs*4/total_cals*100).toFixed(1)}%`;
+
+  document.getElementById('ml-p').textContent = protein + 'г';
+  document.getElementById('ml-f').textContent = fat + 'г';
+  document.getElementById('ml-c').textContent = carbs + 'г';
+
+  // Save
+  try {
+    localStorage.setItem('forge-profile', JSON.stringify({h, w, a, g}));
+  } catch {}
+  showToast();
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+function init() {
+  // Load saved profile
+  try {
+    const p = JSON.parse(localStorage.getItem('forge-profile'));
+    if (p) {
+      document.getElementById('height').value = p.h;
+      document.getElementById('weight').value = p.w;
+      document.getElementById('age').value = p.a;
+      document.getElementById('gender').value = p.g;
+    }
+  } catch {}
+
+  renderExercises();
+
+  // Auto-calculate on load
+  calculate();
+}
+
+init();
+</script>
+</body>
+</html>
