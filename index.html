@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>FORGE — Фитнес Хаб</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f; --bg2: #111118; --bg3: #18181f; --bg4: #20202a;
+  --border: rgba(255,255,255,0.07);
+  --accent: #00f5a0; --accent2: #00c8ff; --accent3: #ff6b35; --purple: #c77dff;
+  --text: #e8e8f0; --muted: #6b6b80; --card: #14141c;
+  --glow: 0 0 32px rgba(0,245,160,0.15); --glow2: 0 0 32px rgba(0,200,255,0.15);
+  --nav-h: 60px; --bottom-h: 64px; --safe-b: env(safe-area-inset-bottom, 0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+
+/* NAV */
+nav.topnav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(--nav-h);background:rgba(10,10,15,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:5px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;gap:2px}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;padding:7px 14px;border-radius:8px;transition:all .2s;white-space:nowrap}
+.nav-links a:hover{color:var(--accent);background:rgba(0,245,160,.07)}
+
+/* BOTTOM NAV */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;height:calc(var(--bottom-h) + var(--safe-b));padding-bottom:var(--safe-b);background:rgba(10,10,15,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--border);justify-content:space-around;align-items:center}
+.bnav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--muted);text-decoration:none;font-size:10px;font-weight:700;letter-spacing:.5px;padding:8px 20px;border-radius:12px;transition:color .2s;-webkit-tap-highlight-color:transparent;min-width:72px}
+.bnav-icon{font-size:22px;line-height:1}
+.bnav-item.active{color:var(--accent)}
+
+/* MAIN */
+main{padding-top:var(--nav-h);position:relative;z-index:1}
+.page-section{padding:56px 24px 48px;max-width:980px;margin:0 auto}
+
+/* HERO */
+.hero{padding:72px 20px 36px;text-align:center;position:relative;max-width:980px;margin:0 auto}
+.hero-glow{position:absolute;top:30px;left:50%;transform:translateX(-50%);width:min(560px,100%);height:280px;background:radial-gradient(ellipse at center,rgba(0,245,160,.07) 0%,transparent 70%);pointer-events:none}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,12vw,96px);letter-spacing:clamp(3px,1vw,8px);line-height:1;background:linear-gradient(135deg,#fff 25%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{margin-top:14px;color:var(--muted);font-size:clamp(13px,3.5vw,16px)}
+.hero-stats{display:flex;justify-content:center;gap:24px;margin-top:28px;flex-wrap:wrap}
+.hero-stat{display:flex;flex-direction:column;align-items:center;gap:2px}
+.hero-stat-val{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--accent)}
+.hero-stat-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+
+/* SECTION HEADERS */
+.section-label{display:inline-flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
+.section-label::before{content:'';display:block;width:20px;height:2px;background:var(--accent)}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,48px);letter-spacing:clamp(2px,.5vw,4px);color:var(--text);margin-bottom:28px;line-height:1.1}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;transition:border-color .3s}
+.card:hover{border-color:rgba(0,245,160,.18)}
+
+/* PROFILE GRID */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.input-group{display:flex;flex-direction:column;gap:7px}
+.input-group label{font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase}
+.input-row{display:flex;align-items:center;gap:8px}
+.input-group input,.input-group select{flex:1;width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:13px 14px;color:var(--text);font-size:18px;font-family:'JetBrains Mono',monospace;font-weight:700;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+.input-group input:focus,.input-group select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,245,160,.1)}
+.input-unit{font-size:13px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.calc-btn{grid-column:1/-1;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:12px;padding:16px;color:#0a0a0f;font-size:14px;font-weight:900;letter-spacing:2px;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s,transform .1s;min-height:52px;-webkit-tap-highlight-color:transparent}
+.calc-btn:hover{opacity:.88}
+.calc-btn:active{transform:scale(.98)}
+
+/* RESULTS */
+.results-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}
+.result-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:18px 10px;text-align:center;position:relative;overflow:hidden}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.result-card.green::before{background:var(--accent)}
+.result-card.blue::before{background:var(--accent2)}
+.result-card.orange::before{background:var(--accent3)}
+.result-card.purple::before{background:var(--purple)}
+.result-value{font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,4vw,36px);letter-spacing:1px}
+.result-card.green .result-value{color:var(--accent)}
+.result-card.blue .result-value{color:var(--accent2)}
+.result-card.orange .result-value{color:var(--accent3)}
+.result-card.purple .result-value{color:var(--purple)}
+.result-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-top:3px}
+
+/* MACROS */
+.macros-bar{margin-top:20px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:18px}
+.macros-bar h3{font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+.progress-track{height:10px;background:var(--bg4);border-radius:99px;overflow:hidden;display:flex;margin-bottom:14px;gap:2px}
+.progress-seg{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.macro-labels{display:flex;gap:16px;flex-wrap:wrap}
+.macro-dot{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.macro-dot span{display:inline-block;width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.macro-dot strong{color:var(--text)}
+
+/* FOOD */
+.food-section-label{margin-top:28px}
+.food-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.food-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:16px}
+.food-card h4{font-size:11px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+.food-card.protein h4{color:var(--accent)}
+.food-card.fat h4{color:var(--accent3)}
+.food-card.carbs h4{color:var(--accent2)}
+.food-card ul{list-style:none}
+.food-card ul li{font-size:13px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.food-card ul li:last-child{border-bottom:none}
+.food-card ul li::before{content:'→';font-size:10px;opacity:.6;flex-shrink:0}
+.food-card.protein ul li::before{color:var(--accent)}
+.food-card.fat ul li::before{color:var(--accent3)}
+.food-card.carbs ul li::before{color:var(--accent2)}
+
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:24px;background:var(--bg3);padding:5px;border-radius:12px;width:100%}
+.tab-btn{flex:1;padding:11px 8px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;text-align:center;min-height:44px;-webkit-tap-highlight-color:transparent}
+.tab-btn.active{background:var(--accent);color:#0a0a0f}
+.workout-panel{display:none}
+.workout-panel.active{display:block}
+.workout-meta{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.meta-badge{font-size:11px;font-weight:700;letter-spacing:.8px;padding:5px 12px;border-radius:99px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
+.exercise-list{display:flex;flex-direction:column;gap:10px}
+
+/* EXERCISE CARD */
+.exercise-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.exercise-card:has(.ex-check:checked){border-color:rgba(0,245,160,.35);background:rgba(0,245,160,.025)}
+.ex-header{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;-webkit-tap-highlight-color:transparent;min-height:58px}
+.ex-check{width:22px;height:22px;flex-shrink:0;border-radius:7px;cursor:pointer;appearance:none;-webkit-appearance:none;border:2px solid var(--border);background:var(--bg3);transition:all .2s;position:relative}
+.ex-check:checked{background:var(--accent);border-color:var(--accent)}
+.ex-check:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#0a0a0f;font-size:13px;font-weight:900}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-check:checked~.ex-info .ex-name{color:var(--accent)}
+.ex-sub{display:flex;gap:10px;margin-top:3px;flex-wrap:wrap}
+.stat-pill{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap}
+.stat-pill span{color:var(--accent2)}
+.expand-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;padding:4px 6px;transition:color .2s,transform .3s;line-height:1;flex-shrink:0;min-width:34px;min-height:34px;display:flex;align-items:center;justify-content:center;border-radius:8px;-webkit-tap-highlight-color:transparent}
+.expand-btn:hover{background:var(--bg3)}
+.expand-btn.open{transform:rotate(180deg);color:var(--accent)}
+.ex-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);animation:slideDown .2s ease}
+.ex-body.open{display:block}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.ex-muscles{display:flex;gap:6px;flex-wrap:wrap;padding-top:14px;margin-bottom:12px}
+.muscle-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:99px;background:rgba(0,245,160,.08);color:var(--accent);border:1px solid rgba(0,245,160,.18)}
+.technique-box{background:var(--bg3);border-left:3px solid var(--accent2);border-radius:0 10px 10px 0;padding:12px 14px;font-size:13px;line-height:1.75;color:var(--muted)}
+.technique-box strong{color:var(--accent2);display:block;margin-bottom:6px;font-size:10px;letter-spacing:1.2px;text-transform:uppercase}
+.rest-info{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--muted)}
+.rest-info span{color:var(--accent3);font-weight:800;font-family:'JetBrains Mono',monospace}
+
+/* WORKOUT PROGRESS */
+.workout-progress{margin-top:20px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.wp-label{font-size:12px;color:var(--muted);flex-shrink:0}
+.wp-bar{flex:1;height:6px;background:var(--bg4);border-radius:99px;overflow:hidden}
+.wp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .4s}
+.wp-count{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--accent);flex-shrink:0}
+.reset-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:7px 12px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;flex-shrink:0;min-height:36px;-webkit-tap-highlight-color:transparent}
+.reset-btn:hover,.reset-btn:active{border-color:var(--accent3);color:var(--accent3)}
+
+/* RULES */
+.rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.rule-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 22px;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s,border-color .3s}
+.rule-card:hover{transform:translateY(-4px)}
+.rule-card.r1{border-top:3px solid var(--accent)}
+.rule-card.r1:hover{box-shadow:var(--glow);border-color:rgba(0,245,160,.3);border-top-color:var(--accent)}
+.rule-card.r2{border-top:3px solid var(--accent2)}
+.rule-card.r2:hover{box-shadow:var(--glow2);border-color:rgba(0,200,255,.3);border-top-color:var(--accent2)}
+.rule-card.r3{border-top:3px solid var(--accent3)}
+.rule-card.r3:hover{border-color:rgba(255,107,53,.3);border-top-color:var(--accent3)}
+.rule-num{font-family:'Bebas Neue',sans-serif;font-size:68px;line-height:1;opacity:.06;position:absolute;top:8px;right:16px}
+.rule-icon{font-size:26px;margin-bottom:12px}
+.rule-card h3{font-size:17px;font-weight:800;margin-bottom:10px}
+.rule-card.r1 h3{color:var(--accent)}
+.rule-card.r2 h3{color:var(--accent2)}
+.rule-card.r3 h3{color:var(--accent3)}
+.rule-card p{font-size:13px;line-height:1.75;color:var(--muted)}
+
+/* FOOTER */
+footer{text-align:center;padding:36px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:13px}
+footer strong{color:var(--accent);font-family:'Bebas Neue',sans-serif;letter-spacing:3px}
+
+/* TOAST */
+.saved-toast{position:fixed;bottom:24px;right:20px;background:var(--accent);color:#0a0a0f;font-size:13px;font-weight:800;padding:10px 20px;border-radius:10px;z-index:300;opacity:0;transform:translateY(8px);transition:all .3s;pointer-events:none}
+.saved-toast.show{opacity:1;transform:translateY(0)}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+
+/* TABLET ≤ 860px */
+@media (max-width:860px){
+  .rules-grid{grid-template-columns:1fr 1fr}
+  .food-grid{grid-template-columns:1fr 1fr}
+  .results-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* MOBILE ≤ 640px */
+@media (max-width:640px){
+  .nav-links{display:none}
+  .bottom-nav{display:flex}
+  main{padding-bottom:calc(var(--bottom-h) + var(--safe-b))}
+  footer{padding-bottom:calc(var(--bottom-h) + var(--safe-b) + 24px)}
+  .saved-toast{bottom:calc(var(--bottom-h) + var(--safe-b) + 12px)}
+  .page-section{padding:32px 14px 28px}
+  .hero{padding:48px 14px 24px}
+  .profile-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .results-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .food-grid{grid-template-columns:1fr}
+  .rules-grid{grid-template-columns:1fr}
+  .result-card{padding:14px 10px}
+  .result-value{font-size:26px}
+  .ex-header{padding:12px 12px;gap:10px;min-height:52px}
+  .ex-name{font-size:13px}
+  .ex-body{padding:0 12px 14px}
+  .workout-meta{gap:6px}
+  .meta-badge{font-size:10px;padding:4px 10px}
+  .hero-stats{gap:16px}
+  .hero-stat-val{font-size:22px}
+  .tab-btn{font-size:13px}
+  .macros-bar{padding:14px}
+  .macro-labels{gap:12px}
+}
+
+/* SMALL MOBILE ≤ 400px */
+@media (max-width:400px){
+  .profile-grid{grid-template-columns:1fr}
+  .tab-btn{font-size:12px;padding:10px 4px}
+  .hero h1{letter-spacing:2px}
+  .input-group input,.input-group select{font-size:16px;padding:12px}
+  .bnav-item{padding:8px 12px;min-width:60px}
+}
+
+/* DESKTOP ≥ 860px */
+@media (min-width:860px){
+  nav.topnav{padding:0 32px}
+  .page-section{padding:64px 32px 56px}
+  .hero{padding:88px 32px 40px}
+  .card{padding:28px}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="logo">FORGE</div>
+  <div class="nav-links">
+    <a href="#profile">Профиль</a>
+    <a href="#workouts">Тренировки</a>
+    <a href="#knowledge">База знаний</a>
+  </div>
+</nav>
+
+<div class="bottom-nav">
+  <a href="#profile"   class="bnav-item active" id="bn-profile">  <span class="bnav-icon">👤</span><span>Профиль</span></a>
+  <a href="#workouts"  class="bnav-item"         id="bn-workouts"> <span class="bnav-icon">🏋️</span><span>Зал</span></a>
+  <a href="#knowledge" class="bnav-item"         id="bn-knowledge"><span class="bnav-icon">📚</span><span>Знания</span></a>
+</div>
+
+<main>
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <h1>ТВОЙ ПУТЬ<br>К ФОРМЕ</h1>
+    <p>Персональный фитнес-хаб · Full Body · Рекомпозиция тела</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-val">3×</div><div class="hero-stat-lbl">в неделю</div></div>
+      <div class="hero-stat"><div class="hero-stat-val" id="hs-kcal">—</div><div class="hero-stat-lbl">ккал/день</div></div>
+      <div class="hero-stat"><div class="hero-stat-val">18</div><div class="hero-stat-lbl">упражнений</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section class="page-section" id="profile">
+    <div class="section-label">01 — Профиль</div>
+    <div class="section-title">КБЖУ И ПАРАМЕТРЫ</div>
+    <div class="card">
+      <div class="profile-grid">
+        <div class="input-group">
+          <label>Рост</label>
+          <div class="input-row">
+            <input type="number" id="height" value="184" min="140" max="230" inputmode="numeric">
+            <span class="input-unit">см</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Вес</label>
+          <div class="input-row">
+            <input type="number" id="weight" value="90" min="40" max="250" inputmode="decimal">
+            <span class="input-unit">кг</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Возраст</label>
+          <div class="input-row">
+            <input type="number" id="age" value="18" min="14" max="90" inputmode="numeric">
+            <span class="input-unit">лет</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>Пол</label>
+          <select id="gender">
+            <option value="male">Мужской</option>
+            <option value="female">Женский</option>
+          </select>
+        </div>
+        <button class="calc-btn" onclick="calculate()">⚡ РАССЧИТАТЬ КБЖУ</button>
+      </div>
+    </div>
+
+    <div class="results-grid">
+      <div class="result-card green"><div class="result-value" id="res-bmr">—</div><div class="result-label">BMR ккал</div></div>
+      <div class="result-card blue"><div class="result-value" id="res-tdee">—</div><div class="result-label">TDEE ккал</div></div>
+      <div class="result-card orange"><div class="result-value" id="res-target">—</div><div class="result-label">Цель ккал</div></div>
+      <div class="result-card purple"><div class="result-value" id="res-bmi">—</div><div class="result-label">BMI индекс</div></div>
+    </div>
+
+    <div class="macros-bar">
+      <h3>Распределение БЖУ</h3>
+      <div class="progress-track">
+        <div class="progress-seg" id="bar-p" style="width:0%;background:var(--accent)"></div>
+        <div class="progress-seg" id="bar-f" style="width:0%;background:var(--accent3)"></div>
+        <div class="progress-seg" id="bar-c" style="width:0%;background:var(--accent2)"></div>
+      </div>
+      <div class="macro-labels">
+        <div class="macro-dot"><span style="background:var(--accent)"></span>Белки <strong id="ml-p">0г</strong></div>
+        <div class="macro-dot"><span style="background:var(--accent3)"></span>Жиры <strong id="ml-f">0г</strong></div>
+        <div class="macro-dot"><span style="background:var(--accent2)"></span>Углеводы <strong id="ml-c">0г</strong></div>
+      </div>
+    </div>
+
+    <div class="section-label food-section-label">Рекомендованные продукты</div>
+    <div class="food-grid">
+      <div class="food-card protein">
+        <h4>🥩 Белки</h4>
+        <ul>
+          <li>Куриная грудка</li><li>Говядина нежирная</li><li>Яичные белки</li>
+          <li>Творог 1–5%</li><li>Греческий йогурт</li><li>Тунец / лосось</li>
+          <li>Протеин сывороточный</li>
+        </ul>
+      </div>
+      <div class="food-card fat">
+        <h4>🥑 Жиры</h4>
+        <ul>
+          <li>Авокадо</li><li>Орехи (миндаль)</li><li>Оливковое масло</li>
+          <li>Скумбрия / сельдь</li><li>Яичный желток</li><li>Арахисовая паста</li>
+          <li>Семена чиа / льна</li>
+        </ul>
+      </div>
+      <div class="food-card carbs">
+        <h4>🌾 Углеводы</h4>
+        <ul>
+          <li>Гречка / бурый рис</li><li>Овсянка</li><li>Батат</li>
+          <li>Цельнозерновой хлеб</li><li>Чечевица / бобовые</li><li>Банан / ягоды</li>
+          <li>Картофель (варёный)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section class="page-section" id="workouts">
+    <div class="section-label">02 — Тренировки</div>
+    <div class="section-title">FULL BODY ПРОГРАММА</div>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('A',this)">Тренировка A</button>
+      <button class="tab-btn"        onclick="switchTab('B',this)">Тренировка B</button>
+      <button class="tab-btn"        onclick="switchTab('C',this)">Тренировка C</button>
+    </div>
+
+    <div class="workout-panel active" id="panel-A">
+      <div class="workout-meta">
+        <span class="meta-badge">📅 Понедельник</span>
+        <span class="meta-badge">⏱ 60–75 мин</span>
+        <span class="meta-badge">🎯 Сила + Объём</span>
+      </div>
+      <div class="exercise-list" id="list-A"></div>
+      <div class="workout-progress">
+        <span class="wp-label">Прогресс:</span>
+        <div class="wp-bar"><div class="wp-fill" id="prog-A" style="width:0%"></div></div>
+        <span class="wp-count" id="cnt-A">0/0</span>
+        <button class="reset-btn" onclick="resetWorkout('A')">Сброс</button>
+      </div>
+    </div>
+
+    <div class="workout-panel" id="panel-B">
+      <div class="workout-meta">
+        <span class="meta-badge">📅 Среда</span>
+        <span class="meta-badge">⏱ 55–70 мин</span>
+        <span class="meta-badge">🎯 Гипертрофия</span>
+      </div>
+      <div class="exercise-list" id="list-B"></div>
+      <div class="workout-progress">
+        <span class="wp-label">Прогресс:</span>
+        <div class="wp-bar"><div class="wp-fill" id="prog-B" style="width:0%"></div></div>
+        <span class="wp-count" id="cnt-B">0/0</span>
+        <button class="reset-btn" onclick="resetWorkout('B')">Сброс</button>
+      </div>
+    </div>
+
+    <div class="workout-panel" id="panel-C">
+      <div class="workout-meta">
+        <span class="meta-badge">📅 Пятница</span>
+        <span class="meta-badge">⏱ 50–65 мин</span>
+        <span class="meta-badge">🎯 Выносливость</span>
+      </div>
+      <div class="exercise-list" id="list-C"></div>
+      <div class="workout-progress">
+        <span class="wp-label">Прогресс:</span>
+        <div class="wp-bar"><div class="wp-fill" id="prog-C" style="width:0%"></div></div>
+        <span class="wp-count" id="cnt-C">0/0</span>
+        <button class="reset-btn" onclick="resetWorkout('C')">Сброс</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section class="page-section" id="knowledge">
+    <div class="section-label">03 — База знаний</div>
+    <div class="section-title">3 ЗОЛОТЫХ ПРАВИЛА</div>
+    <div class="rules-grid">
+      <div class="rule-card r1">
+        <div class="rule-num">1</div><div class="rule-icon">📈</div>
+        <h3>Прогрессия нагрузок</h3>
+        <p>Тело адаптируется к стрессу. Каждую неделю добавляй 1–2 кг к рабочему весу или 1 повторение. Без прогрессии — нет роста. Записывай каждую тренировку и бей личные рекорды.</p>
+      </div>
+      <div class="rule-card r2">
+        <div class="rule-num">2</div><div class="rule-icon">🎯</div>
+        <h3>Техника прежде всего</h3>
+        <p>Правильная техника — максимальная нагрузка на целевую мышцу и минимальный риск травмы. Начинай с малых весов. Снижай вес, если форма ломается. Снимай себя на видео.</p>
+      </div>
+      <div class="rule-card r3">
+        <div class="rule-num">3</div><div class="rule-icon">😴</div>
+        <h3>Сон — анаболик #1</h3>
+        <p>Мышцы растут не в зале, а во сне. 8–9 часов — твоя цель. В фазе глубокого сна пик выброса гормона роста. Недосып снижает тестостерон и уничтожает весь прогресс.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <strong>FORGE</strong>
+    <p style="margin-top:8px">Данные сохраняются в браузере · Тренируйся умно · Расти каждый день</p>
+  </footer>
+</main>
+
+<div class="saved-toast" id="toast">💾 Сохранено</div>
+
+<script>
+const workouts = {
+  A: [
+    { name:'Приседания со штангой', sets:4, reps:'6–8', rest:'3 мин',
+      muscles:['Квадрицепс','Ягодицы','Бицепс бедра','Кор'],
+      technique:'Ступни чуть шире плеч, носки развёрнуты 15–30°. Спина прямая, нейтральный прогиб в пояснице. Колени идут по линии носков. Опускайся до параллели или глубже, пятки не отрываются. Гриф лежит на трапециях (хайбар).' },
+    { name:'Жим штанги лёжа', sets:4, reps:'6–8', rest:'3 мин',
+      muscles:['Грудь','Передние дельты','Трицепс'],
+      technique:'Лопатки сведены и прижаты к скамье — создай арку. Хват чуть шире плеч. Гриф опускается к нижней части груди под углом ~45°. Локти не разводить в стороны на 90°. Выдох на подъёме.' },
+    { name:'Тяга штанги в наклоне', sets:4, reps:'8–10', rest:'2 мин',
+      muscles:['Широчайшие','Трапеции','Бицепс','Задние дельты'],
+      technique:'Наклон 45°, спина прямая, нейтральный позвоночник. Тяни гриф к поясу, не к груди. Локти идут вдоль тела назад. Сводим лопатки в верхней точке. Не округляй поясницу — критично.' },
+    { name:'Армейский жим стоя', sets:3, reps:'8–10', rest:'2 мин',
+      muscles:['Средние дельты','Передние дельты','Трицепс','Кор'],
+      technique:'Ноги на ширине плеч. Гриф у ключиц, хват чуть шире. Жмёшь вертикально вверх. Напряги ягодицы и пресс для стабильности. Не переразгибай поясницу.' },
+    { name:'Подтягивания широким хватом', sets:3, reps:'макс (цель 8+)', rest:'2 мин',
+      muscles:['Широчайшие','Бицепс','Ромбовидные'],
+      technique:'Хват сверху, чуть шире плеч. Лопатки опускаешь вниз перед началом. Тяни грудью к перекладине, локти вниз-назад. Не раскачивайся. Если нет 8 раз — используй резинку.' },
+    { name:'Планка', sets:3, reps:'45–60 сек', rest:'1 мин',
+      muscles:['Кор','Поперечная мышца','Стабилизаторы'],
+      technique:'Упор на предплечья и носки. Тело — одна прямая линия. Не поднимай таз и не провисай в пояснице. Напряги пресс. Взгляд в пол, шея нейтральная.' },
+  ],
+  B: [
+    { name:'Румынская тяга', sets:4, reps:'8–10', rest:'2.5 мин',
+      muscles:['Бицепс бедра','Ягодицы','Поясница'],
+      technique:'Ноги на ширине плеч, штанга у бёдер. Отводи таз назад, опускай штангу вдоль ног. Спина прямая. Опускайся до чёткого растяжения бицепса бедра. Подъём — тяни бёдрами вперёд.' },
+    { name:'Жим гантелей на наклонной', sets:4, reps:'10–12', rest:'2 мин',
+      muscles:['Верх груди','Передние дельты','Трицепс'],
+      technique:'Угол скамьи 30–45°. Гантели у верхней части груди, локти ~60°. Жмёшь вверх и чуть сводишь. В нижней точке — глубокое растяжение груди. Контролируй опускание 2–3 сек.' },
+    { name:'Тяга гантели одной рукой', sets:3, reps:'10–12', rest:'1.5 мин',
+      muscles:['Широчайшие','Бицепс','Задние дельты'],
+      technique:'Рука и колено опираются на скамью. Спина горизонтально. Тяни гантель к поясу, локоть максимально вверх. Не ротируй корпус сильно — это тяга, а не скручивание.' },
+    { name:'Болгарские сплит-приседания', sets:3, reps:'10–12/нога', rest:'2 мин',
+      muscles:['Квадрицепс','Ягодицы','Бицепс бедра'],
+      technique:'Задняя нога на скамье. Опускайся вертикально вниз, не толкай колено вперёд. Спина прямая. Вес на пятке передней ноги. Отличная альтернатива приседу при болях в спине.' },
+    { name:'Жим узким хватом', sets:3, reps:'10–12', rest:'1.5 мин',
+      muscles:['Трицепс','Грудь','Передние дельты'],
+      technique:'Хват на ширине плеч. Локти прижаты к телу, идут назад. Гриф к нижней части груди. Полностью распрямляй руки вверху. Концентрируйся на трицепсе.' },
+    { name:'Сгибания на бицепс со штангой', sets:3, reps:'10–12', rest:'1.5 мин',
+      muscles:['Бицепс','Брахиалис'],
+      technique:'Стоишь прямо, локти прижаты к бокам — не двигаются. Подъём 2 счёта, опускание 3 счёта. Не раскачивай корпус. Хват чуть шире плеч.' },
+  ],
+  C: [
+    { name:'Становая тяга', sets:3, reps:'5', rest:'3–4 мин',
+      muscles:['Всё тело','Поясница','Бицепс бедра','Трапеции'],
+      technique:'Ноги на ширине таза, гриф над серединой стопы. Лопатки вниз-назад, поднимаешь грудь. Штанга скользит по ногам. Нет рывка — плавный подъём. Бёдра и плечи поднимаются одновременно.' },
+    { name:'Жим в Смите под углом', sets:3, reps:'12–15', rest:'1.5 мин',
+      muscles:['Грудь','Дельты','Трицепс'],
+      technique:'Угол 30°. Смит позволяет сосредоточиться на мышце. Опускай медленно 3 сек, жмёшь быстро. Полный диапазон движения. Хорошо для прокачки крови.' },
+    { name:'Тяга верхнего блока широким хватом', sets:3, reps:'12–15', rest:'1.5 мин',
+      muscles:['Широчайшие','Бицепс'],
+      technique:'Бёдра под валиками. Небольшой наклон назад 15–20°. Тяни к верхней части груди. Лопатки сводятся и опускаются в нижней точке. Задержи на секунду.' },
+    { name:'Жим ногами в тренажёре', sets:3, reps:'15–20', rest:'1.5 мин',
+      muscles:['Квадрицепс','Ягодицы'],
+      technique:'Стопы на ширине плеч в середине платформы. Опускай до угла ~90° в колене. Не блокируй колени полностью. Поясница прижата к спинке всё время движения.' },
+    { name:'Разводки гантелей лёжа', sets:3, reps:'12–15', rest:'1.5 мин',
+      muscles:['Грудь (растяжение)','Передние дельты'],
+      technique:'Гантели над грудью, небольшой сгиб в локтях. Разводишь дугообразно вниз до уровня груди. Возвращаешь, как будто обнимаешь дерево. Важно растяжение, а не нагрузка.' },
+    { name:'Подъём на носки стоя', sets:4, reps:'15–20', rest:'1 мин',
+      muscles:['Икры (Gastrocnemius)'],
+      technique:'Носки на краю ступеньки для полного диапазона. Медленно опускайся (2 сек пауза), быстро поднимайся. Икры любят высокое число повторений — не жалей.' },
+  ],
+};
+
+function renderExercises() {
+  ['A','B','C'].forEach(t => {
+    const list = document.getElementById('list-'+t);
+    list.innerHTML = '';
+    const saved = getSavedChecks(t);
+    workouts[t].forEach((ex,i) => {
+      const id = `ex-${t}-${i}`;
+      const checked = saved[i] ? 'checked' : '';
+      list.insertAdjacentHTML('beforeend',`
+        <div class="exercise-card" id="card-${id}">
+          <div class="ex-header" onclick="toggleExpand('${id}',event)">
+            <input type="checkbox" class="ex-check" id="${id}" ${checked}
+              onchange="onCheck('${t}',${i},this.checked)" onclick="event.stopPropagation()">
+            <div class="ex-info">
+              <div class="ex-name">${ex.name}</div>
+              <div class="ex-sub">
+                <span class="stat-pill">${ex.sets}×<span>${ex.reps}</span></span>
+                <span class="stat-pill">⏱ <span>${ex.rest}</span></span>
+              </div>
+            </div>
+            <button class="expand-btn" id="btn-${id}" aria-label="Развернуть">▾</button>
+          </div>
+          <div class="ex-body" id="body-${id}">
+            <div class="ex-muscles">${ex.muscles.map(m=>`<span class="muscle-tag">${m}</span>`).join('')}</div>
+            <div class="technique-box"><strong>Техника выполнения</strong>${ex.technique}</div>
+            <div class="rest-info">⏳ Отдых: <span>${ex.rest}</span></div>
+          </div>
+        </div>`);
+    });
+    updateProgress(t);
+  });
+}
+
+function toggleExpand(id, e) {
+  if (e && (e.target.type==='checkbox' || e.target.tagName==='INPUT')) return;
+  document.getElementById('body-'+id).classList.toggle('open');
+  document.getElementById('btn-'+id).classList.toggle('open');
+}
+
+function switchTab(t, btn) {
+  document.querySelectorAll('.workout-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+t).classList.add('active');
+  btn.classList.add('active');
+}
+
+function getSavedChecks(t) {
+  try { return JSON.parse(localStorage.getItem('forge-checks-'+t))||{}; } catch { return {}; }
+}
+function saveChecks(t,data) {
+  try { localStorage.setItem('forge-checks-'+t, JSON.stringify(data)); } catch {}
+}
+function onCheck(t,i,val) {
+  const data = getSavedChecks(t); data[i]=val;
+  saveChecks(t,data); updateProgress(t); showToast();
+}
+function updateProgress(t) {
+  const total = workouts[t].length;
+  const done = Object.values(getSavedChecks(t)).filter(Boolean).length;
+  document.getElementById('cnt-'+t).textContent = `${done}/${total}`;
+  document.getElementById('prog-'+t).style.width = `${(done/total)*100}%`;
+}
+function resetWorkout(t) {
+  saveChecks(t,{});
+  document.querySelectorAll(`#list-${t} .ex-check`).forEach(cb=>cb.checked=false);
+  updateProgress(t);
+}
+
+function calculate() {
+  const h = parseFloat(document.getElementById('height').value)||184;
+  const w = parseFloat(document.getElementById('weight').value)||90;
+  const a = parseFloat(document.getElementById('age').value)||18;
+  const g = document.getElementById('gender').value;
+  const bmr = g==='male' ? 10*w+6.25*h-5*a+5 : 10*w+6.25*h-5*a-161;
+  const tdee = Math.round(bmr*1.55);
+  const target = Math.round(tdee*0.93);
+  const bmi = (w/((h/100)**2)).toFixed(1);
+  const protein = Math.round(w*1.9);
+  const fat = Math.round(w*0.95);
+  const carbs = Math.max(0, Math.round((target-(protein*4+fat*9))/4));
+  const total = protein*4+fat*9+carbs*4;
+
+  document.getElementById('res-bmr').textContent    = Math.round(bmr);
+  document.getElementById('res-tdee').textContent   = tdee;
+  document.getElementById('res-target').textContent = target;
+  document.getElementById('res-bmi').textContent    = bmi;
+  document.getElementById('hs-kcal').textContent    = target;
+
+  document.getElementById('bar-p').style.width = `${(protein*4/total*100).toFixed(1)}%`;
+  document.getElementById('bar-f').style.width = `${(fat*9/total*100).toFixed(1)}%`;
+  document.getElementById('bar-c').style.width = `${(carbs*4/total*100).toFixed(1)}%`;
+  document.getElementById('ml-p').textContent = protein+'г';
+  document.getElementById('ml-f').textContent = fat+'г';
+  document.getElementById('ml-c').textContent = carbs+'г';
+
+  try { localStorage.setItem('forge-profile', JSON.stringify({h,w,a,g})); } catch {}
+  showToast();
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(t._tmr);
+  t._tmr = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// Bottom nav scroll highlight
+window.addEventListener('scroll', ()=>{
+  const ids = ['profile','workouts','knowledge'];
+  let active = 'profile';
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 100) active = id;
+  });
+  document.querySelectorAll('.bnav-item').forEach(el=>{
+    el.classList.toggle('active', el.id==='bn-'+active);
+  });
+}, {passive:true});
+
+// Init
+(function(){
+  try {
+    const p = JSON.parse(localStorage.getItem('forge-profile'));
+    if (p) {
+      document.getElementById('height').value = p.h;
+      document.getElementById('weight').value = p.w;
+      document.getElementById('age').value    = p.a;
+      document.getElementById('gender').value = p.g;
+    }
+  } catch {}
+  renderExercises();
+  calculate();
+})();
+</script>
+</body>
+</html>
